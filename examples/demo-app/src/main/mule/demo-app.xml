@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:gcp-secret-manager="http://www.mulesoft.org/schema/mule/gcp-secret-manager"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/gcp-secret-manager http://www.mulesoft.org/schema/mule/gcp-secret-manager/current/mule-gcp-secret-manager.xsd">
+
+    <!-- Plain (non-secret) settings. Any key can be overridden in Runtime Manager > Properties. -->
+    <configuration-properties file="config.yaml"/>
+
+    <!--
+      GCP Secret Manager properties provider.
+      Every ${gsm::...} placeholder is read from Secret Manager once, while the app starts.
+      Authentication: Application Default Credentials (GKE Workload Identity on RTF, gcloud ADC locally).
+    -->
+    <gcp-secret-manager:config name="GCP_Secret_Manager_Config"
+                               projectId="${gcp.projectId}"
+                               credentialsFile="${gcp.credentialsFile}"
+                               endpoint="${gcp.secretManagerEndpoint}"/>
+
+    <http:listener-config name="HTTP_Listener_config">
+        <http:listener-connection host="0.0.0.0" port="${http.port}"/>
+    </http:listener-config>
+
+    <flow name="secret-demo-flow">
+        <http:listener config-ref="HTTP_Listener_config" path="/secrets"/>
+        <!-- Plain text secret (latest version). -->
+        <set-variable variableName="apiKey" value="${gsm::demo-api-key}"/>
+        <!-- One field of a JSON secret: {"username": "...", "password": "..."} -->
+        <set-variable variableName="dbUser" value="${gsm::demo-db-credentials#username}"/>
+        <set-variable variableName="dbPassword" value="${gsm::demo-db-credentials#password}"/>
+        <!-- Never return secrets in a real API: this only proves they were resolved. -->
+        <set-payload value='#[output application/json --- {
+            apiKeyLength: sizeOf(vars.apiKey),
+            dbUser: vars.dbUser,
+            dbPasswordMasked: (vars.dbPassword[0 to 0] default "") ++ "****"
+        }]'/>
+    </flow>
+</mule>

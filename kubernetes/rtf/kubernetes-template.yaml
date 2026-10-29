@@ -1,0 +1,23 @@
+# Runtime Fabric KubernetesTemplate: adds the Reloader annotation to EVERY Mule app Deployment.
+# https://docs.mulesoft.com/runtime-fabric/latest/customize-kubernetes-crd
+#
+# - The resource MUST be named "mule-application".
+# - Create it in the apps namespace (applies to all apps in that namespace) or in the RTF agent
+#   namespace (applies to all apps managed by that agent).
+# - It only applies to NEW deployments: redeploy (or re-apply settings for) existing apps after creating it.
+#
+# Why "secret.reloader.stakater.com/reload" and not "reloader.stakater.com/auto":
+# RTF Deployments do not mount the synced Secret (the app reads Secret Manager directly), and Reloader's
+# auto and search/match modes only react to Secrets referenced by the pod. The explicit "reload"
+# annotation reacts to the named Secret regardless of how (or whether) it is used.
+apiVersion: rtf.mulesoft.com/v1
+kind: KubernetesTemplate
+metadata:
+  name: mule-application
+  namespace: RTF_APPS_NAMESPACE
+spec:
+  deployment:
+    metadata:
+      annotations:
+        # Comma-separated list of Kubernetes Secrets that trigger a rolling restart.
+        secret.reloader.stakater.com/reload: "mule-gsm-secrets"

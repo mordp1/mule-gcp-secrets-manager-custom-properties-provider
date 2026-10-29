@@ -1,0 +1,15 @@
+target/
+*.iml
+.idea/
+.vscode/
+.settings/
+.project
+.classpath
+.DS_Store
+.mule/
+pom.exchange.xml
+# Never commit credentials
+*-sa.json
+*credentials*.json
+.claude/worktrees/
+allure-results/

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.mule.extensions</groupId>
+        <artifactId>mule-modules-parent</artifactId>
+        <version>1.11.7</version>
+    </parent>
+
+    <!--
+      When publishing to Anypoint Exchange, the groupId MUST be your Anypoint organization ID.
+      scripts/deploy-to-exchange.sh <ORG_ID> publishes a copy of this POM with the groupId replaced.
+    -->
+    <groupId>io.github.mulegcp</groupId>
+    <artifactId>mule-gcp-secret-manager-properties-provider</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>mule-extension</packaging>
+
+    <name>GCP Secret Manager Properties Provider</name>
+    <description>
+        Mule 4 custom configuration properties provider that resolves ${gsm::secret-name} placeholders
+        from Google Cloud Secret Manager at application startup, using Application Default Credentials
+        (GKE Workload Identity, gcloud ADC, or a service account key file).
+    </description>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- Lowest Mule runtime this plugin declares support for (Java 17 runtimes). -->
+        <min.mule.version>4.6.0</min.mule.version>
+
+        <mule-sdk-api.version>0.11.10</mule-sdk-api.version>
+        <google-auth.version>1.55.0</google-auth.version>
+        <gson.version>2.15.0</gson.version>
+        <slf4j.version>2.0.17</slf4j.version>
+        <junit.version>5.13.4</junit.version>
+        <junit-platform.version>1.13.4</junit-platform.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.mule.runtime</groupId>
+            <artifactId>mule-module-spring-config</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mule.sdk</groupId>
+            <artifactId>mule-sdk-api</artifactId>
+            <version>${mule-sdk-api.version}</version>
+        </dependency>
+
+        <!-- Application Default Credentials (Workload Identity, gcloud ADC, SA key file, metadata server). -->
+        <dependency>
+            <groupId>com.google.auth</groupId>
+            <artifactId>google-auth-library-oauth2-http</artifactId>
+            <version>${google-auth.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>${gson.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Pinned explicitly: the Mule parent manages an older launcher that does not match JUnit 5.13. -->
+        <dependency>
+            <groupId>org.junit.platform</groupId>
+            <artifactId>junit-platform-launcher</artifactId>
+            <version>${junit-platform.version}</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <!-- Plain JUnit 5 unit tests; they do not need a Mule container. -->
+                    <argLine>-Dfile.encoding=UTF-8</argLine>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Releases Repository</name>
+            <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>mulesoft-public</id>
+            <name>MuleSoft Public Repository</name>
+            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>mulesoft-releases</id>
+            <name>MuleSoft Releases Repository</name>
+            <url>https://repository-master.mulesoft.org/nexus/content/repositories/releases/</url>
+        </pluginRepository>
+        <pluginRepository>
+            <id>mulesoft-public</id>
+            <name>MuleSoft Public Repository</name>
+            <url>https://repository.mulesoft.org/nexus/content/repositories/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+</project>

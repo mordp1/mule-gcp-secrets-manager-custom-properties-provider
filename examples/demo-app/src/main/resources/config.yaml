@@ -1,0 +1,10 @@
+http:
+  port: "8081"
+
+gcp:
+  # GCP project that owns the secrets. Override per environment in Runtime Manager > Properties.
+  projectId: "my-gcp-project"
+  # Leave empty to use Application Default Credentials (recommended).
+  credentialsFile: ""
+  # Leave empty to use https://secretmanager.googleapis.com. Only set for Private Service Connect or tests.
+  secretManagerEndpoint: ""

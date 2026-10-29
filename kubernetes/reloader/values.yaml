@@ -1,0 +1,14 @@
+# Helm values for Stakater Reloader (https://github.com/stakater/Reloader).
+#
+#   helm repo add stakater https://stakater.github.io/stakater-charts
+#   helm repo update
+#   helm upgrade --install reloader stakater/reloader -n reloader --create-namespace -f kubernetes/reloader/values.yaml
+reloader:
+  # Watch every namespace (RTF apps usually live in one namespace per environment).
+  watchGlobally: true
+  # Trigger restarts by adding an annotation to the pod template instead of injecting a dummy env var.
+  # Recommended because the Mule container does not reference the synced Secret, and an annotation is
+  # less intrusive for a Deployment that is managed by the RTF agent.
+  reloadStrategy: annotations
+  # Only react to updates, not to the initial creation of the Secret.
+  reloadOnCreate: false
